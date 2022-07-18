@@ -1,30 +1,39 @@
 # coding=utf-8
 
-from __future__ import print_function
-import ctypes, sys
+import ctypes, sys, base64
+from email.mime import base
 import platform
 from switcher import *
 from tkinter import *
 
 from tkinter import ttk
 from tkinter import messagebox as msg
+from icon import img
 
-def checkSystem():
-    if platform.system() != 'Windows':
-        msg.showerror("错误", "非Windows系统暂无法使用。")
-        return 1
-    return 0
-
+# 申请管理员权限
 def is_admin():
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
     except:
         return False
+
 if not is_admin():
     if sys.version_info[0] == 3:
         ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
+        sys.exit()  # 获取管理员权限后，关闭当前窗口。
+    else:  # in python2.x
+        ctypes.windll.shell32.ShellExecuteW(None, u"runas", unicode(sys.executable), unicode(__file__), None, 1)
+
 
 top = Tk()
+
+# 设置icon
+tmp = open('icon.ico', 'wb+')
+tmp.write(base64.b64decode(img))
+tmp.close()
+top.iconbitmap('icon.ico')
+os.remove('icon.ico')
+
 screenwidth = top.winfo_screenwidth()
 screenheight = top.winfo_screenheight()
 width, height = 300, 100
@@ -33,9 +42,10 @@ top.geometry('%dx%d+%d+%d'%(width, height, (screenwidth-width)/2, (screenheight-
 top.title('Network Switcher v2.0')
 top.resizable(0, 0)
 
-if checkSystem():
-    exit()
-    
+if platform.system() != 'Windows':
+    msg.showerror("错误", "非Windows系统暂无法使用。")
+    exit
+
 # 加载网络信息
 switcher = Switcher()
 
@@ -70,7 +80,9 @@ def switch():
     if names[0] == names[1]:
         msg.showerror("错误", "选择的两个接口为同一接口，请调整为不同接口再进行操作。")
         return
-    switcher.switch()
+    resp = switcher.switch()
+    if resp:
+        msg.showerror("失败", resp)
     update()
 
 # 菜单栏

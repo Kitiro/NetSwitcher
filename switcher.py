@@ -2,7 +2,7 @@
 '''
 Author: Kitiro
 Date: 2022-07-15 21:40:50
-LastEditTime: 2022-07-15 22:11:05
+LastEditTime: 2022-07-18 15:17:02
 LastEditors: Kitiro
 Description: 
 '''
@@ -59,21 +59,24 @@ class Switcher():
             # 若该接口当前状态为启用，则将其禁用，否则禁用
             status = 'DISABLED' if status in admin_enabled_status else 'ENABLED'
             cmd = f'netsh interface set interface name="{interface_name}" admin={status}'
-            os.system(cmd)
+            resp = os.popen(cmd).read().strip()
+            if resp:  # 若有返回值，说明命令运行失败，直接返回异常信息。
+                return resp
+        return 0
+
+        # # 检查是否切换
+        # self.get_net()
+        # error = []
+        # for i in range(2):    
+        #     status = self.net_info[self.pairs[i]]['isEnabled']
+        #     if history[i] == status:
+        #         error.append(self.pairs[i])
         
-        # 检查是否切换
-        self.get_net()
-        error = []
-        for i in range(2):    
-            status = self.net_info[self.pairs[i]]['isEnabled']
-            if history[i] == status:
-                error.append(self.pairs[i])
-        
-        if len(error) > 0 and flag == 0:
-            print(' '.join(error), 'switch failed with unknown error.')
-            return 1
-        else:
-            return 0
+        # if len(error) > 0 and flag == 0:
+        #     print(' '.join(error), 'switch failed with unknown error.')
+        #     return 1
+        # else:
+        #     return 0
 
     def update_pairs(self, pairs):
         assert len(self.pairs) == len(pairs)
