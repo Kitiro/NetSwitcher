@@ -12,4 +12,4 @@ Switch WLAN/Ethernet for web/local. Implemented on python.
 如果你喜欢我的工作，欢迎通过打赏的方式支持一下我，我会更开心地做出更多实用的小工具。
 
 
-![receive](./QR.jpg "支持我")
+![receive](QR.png "支持我")
